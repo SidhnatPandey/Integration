@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from 'react';
+import OpenRepositoryButton from './OpenRepositoryButton'
 import axios from 'axios';
-
+ 
 const WelcomePage = ({ location }) => {
   const [repositories, setRepositories] = useState([]);
   const [selectedRepo, setSelectedRepo] = useState(null); // Track the selected repository
   const searchParams = new URLSearchParams(location.search);
   const accessToken = searchParams.get('token');
+ 
 
+ 
   useEffect(() => {
     const fetchRepositories = async () => {
       try {
@@ -16,23 +19,26 @@ const WelcomePage = ({ location }) => {
             Authorization: `Bearer ${accessToken}`,
           },
         });
-
+ 
+ 
         setRepositories(response.data);
+        console.log(response.data)
       } catch (error) {
         console.error('Error fetching repositories:', error);
       }
     };
-
+ 
     if (accessToken) {
       fetchRepositories();
     }
   }, [accessToken]);
-
+ 
   const handleSelectRepo = (repoId) => {
     // Handle the selected repository, e.g., redirect to a page or perform an action
-    setSelectedRepo(repoId);
+    setSelectedRepo(parseInt(repoId, 10));
+    console.log('Selected Repo ID:', repoId);
   };
-
+ 
   return (
     <div style={{ textAlign: 'center', marginTop: '20vh' }}>
       <h2>Welcome to the App!</h2>
@@ -41,24 +47,23 @@ const WelcomePage = ({ location }) => {
       <select
         value={selectedRepo}
         onChange={(e) => handleSelectRepo(e.target.value)}
-        style={{ width: '200px' }} // Set the width of the dropdown
+        style={{ width: '300px', height: '30px' }} // Set the width of the dropdown
       >
         <option value={null}>Select a Repository</option>
         {repositories.map(repo => (
-          <option key={repo.id} value={repo.id}>{repo.full_name}</option>
+          <option key={repo.id} value={String(repo.id)}>{repo.full_name}</option>
         ))}
       </select>
-      {/* {selectedRepo && (
+      
+      {selectedRepo && (
         <div>
-          <h4>Selected Repository:</h4>
-          <p>{repositories.find(repo => repo.id === selectedRepo)?.full_name}</p>
+          <p>Selected Repository: {repositories.find((repo) => repo.id === selectedRepo)?.name}</p>
         </div>
-      )} */}
-
-      {/* <button onClick={() => window.location.href = "http://localhost:9090/"}>Open with Visual Studio Code</button> */}
+      )}
+        
+     <OpenRepositoryButton repositoryUrl={repositories.find((repo) => repo.id === selectedRepo)?.full_name} />
     </div>
   );
 };
-
+ 
 export default WelcomePage;
-
